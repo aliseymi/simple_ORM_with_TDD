@@ -87,6 +87,38 @@ class PDOQueryBuilder
         return $query->rowCount();
     }
 
+    public function get(array $columns = ['*'])
+    {
+        $conditions = implode(' and ', $this->conditions);
+
+        $columns = implode(',', $columns);
+
+        $sql = "SELECT {$columns} FROM {$this->table} WHERE {$conditions}";
+
+        $query = $this->connection->prepare($sql);
+
+        $query->execute($this->values);
+
+        return $query->fetchAll();
+    }
+
+    public function first(array $columns = ['*'])
+    {
+        $data = $this->get($columns);
+
+        return empty($data) ? null : $data[0];
+    }
+
+    public function find(int $id)
+    {
+        return $this->where('id', $id)->first();
+    }
+
+    public function findBy(string $column, string $value)
+    {
+        return $this->where($column, $value)->first();
+    }
+
     public function truncateAllTable()
     {
         $query = $this->connection->prepare('SHOW TABLES');
